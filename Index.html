@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .main-container {
+            display: none;
+            padding: 20px;
+        }
+        .sidebar {
+            background-color: #34495e;
+            color: white;
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        .sidebar .nav-link {
+            color: white;
+            padding: 10px 20px;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #2c3e50;
+        }
+        .sidebar .nav-link.active {
+            background-color: #2c3e50;
+        }
+        .content {
+            padding: 20px;
+        }
+        .header {
+            background-color: #e67e22;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .user-info {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+        .dashboard-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Form -->
+    <div id="loginForm" class="login-container">
+        <div class="text-center mb-4">
+            <h4 class="mt-3">Sistema de Registro de Atenciones</h4>
+        </div>
+        <div class="mb-3">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                <input type="text" id="username" class="form-control" placeholder="Usuario">
+            </div>
+        </div>
+        <div class="mb-3">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                <input type="password" id="password" class="form-control" placeholder="Contraseña">
+            </div>
+        </div>
+        <button onclick="login()" class="btn btn-primary w-100">Ingresar</button>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="main-container">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-md-2 sidebar">
+                    <div class="user-info">
+                        <i class="fas fa-user-circle fa-3x mb-3"></i>
+                        <h6 id="userFullName">Nombre Usuario</h6>
+                        <small id="userRole">Rol</small>
+                    </div>
+                    <nav class="nav flex-column">
+                        <a class="nav-link active" href="javascript:void(0)" onclick="showSection('registros')">
+                            <i class="fas fa-clipboard-list"></i> Registros
+                        </a>
+                        <a class="nav-link" href="javascript:void(0)" onclick="showSection('consultas')">
+                            <i class="fas fa-search"></i> Consultas
+                        </a>
+                        <a class="nav-link" href="javascript:void(0)" onclick="showSection('graficas')">
+                            <i class="fas fa-chart-bar"></i> Graficas
+                        </a>
+                        <a class="nav-link" href="javascript:void(0)" onclick="showSection('usuarios')">
+                            <i class="fas fa-users"></i> Usuarios
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- Content Area -->
+                <div class="col-md-10">
+                    <div class="header">
+                        <h4 id="sectionTitle">Registros</h4>
+                    </div>
+
+                    <!-- Registros Section -->
+                    <div id="registrosSection" class="content-section">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <select class="form-select" id="curso">
+                                    <option value="">Seleccione Curso</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <select class="form-select" id="nombreEstudiante">
+                                    <option value="">Seleccione Estudiante</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <select class="form-select" id="motivo" onchange="updateSubMotivos()">
+                                    <option value="">Seleccione Motivo</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <select class="form-select" id="subMotivo">
+                                    <option value="">Seleccione Sub-motivo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <textarea class="form-control" rows="4" placeholder="Comentario" id="comentario" style="text-align: justify;"></textarea>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <button onclick="guardarRegistro()" class="btn btn-primary">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Consultas Section -->
+                    <div id="consultasSection" class="content-section" style="display: none;">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Filtros de búsqueda</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label for="fechaInicio" class="form-label">Fecha Inicio</label>
+                                        <input type="date" class="form-control" id="fechaInicio">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="fechaFin" class="form-label">Fecha Fin</label>
+                                        <input type="date" class="form-control" id="fechaFin">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="filtroCurso" class="form-label">Curso</label>
+                                        <select class="form-select" id="filtroCurso">
+                                            <option value="">Todos</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label for="filtroEstudiante" class="form-label">Estudiante</label>
+                                        <select class="form-select" id="filtroEstudiante">
+                                            <option value="">Todos los estudiantes</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">&nbsp;</label>
+                                        <button onclick="consultarRegistros()" class="btn btn-primary d-block">
+                                            <i class="fas fa-search"></i> Consultar
+                                        </button>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">&nbsp;</label>
+                                        <button onclick="imprimirRegistros()" class="btn btn-secondary d-block">
+                                            <i class="fas fa-print"></i> Imprimir
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mt-3">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <style>
+                /* Estilo específico para la columna de comentarios */
+                .table td:nth-child(7) {
+                    text-align: justify;
+                }
+            </style>
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha</th>
+                                               <th>Hora</th>
+                                                <th>Curso</th>
+                                                <th>Estudiante</th>
+                                                <th>Motivo</th>
+                                                <th>Sub-motivo</th>
+                                                <th>Comentario</th>
+                                                <th>Profesional</th>
+                                                <th>Área</th>
+                                                <th>Cargo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tablaConsultasBody">
+                                            <tr>
+                                                <td colspan="10" class="text-center">Use los filtros para buscar registros</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+<!-- Graficas Section -->
+<div id="graficasSection" class="content-section" style="display: none;">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Dashboard de Reportes</h5>
+        </div>
+        <div class="card-body">
+            <div class="ratio ratio-16x9">
+                <iframe 
+                    src="https://lookerstudio.google.com/embed/reporting/42bd0f47-8702-4c32-93ad-b7021e43415e/page/page_12345" 
+                    frameborder="0" 
+                    style="border:0" 
+                    allowfullscreen 
+                    sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox">
+                </iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+                    <!-- Usuarios Section -->
+                    <div id="usuariosSection" class="content-section" style="display: none;">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Configuración de Usuario</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-4">
+                                    <div class="col-md-4">
+                                        <label for="nombreCompletoUsuario" class="form-label">Nombre Completo</label>
+                                        <input type="text" class="form-control" placeholder="Nombre Completo" id="nombreCompletoUsuario">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="cargoUsuario" class="form-label">Cargo</label>
+                                        <input type="text" class="form-control" placeholder="Cargo" id="cargoUsuario">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="areaUsuario" class="form-label">Área</label>
+                                        <input type="text" class="form-control" placeholder="Área" id="areaUsuario">
+                                    </div>
+                                </div>
+                                <div class="row mb-4">
+                                    <div class="col-md-3">
+                                        <label for="usuarioNuevo" class="form-label">Usuario</label>
+                                        <input type="text" class="form-control" placeholder="Usuario" id="usuarioNuevo">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="passwordUsuario" class="form-label">Contraseña</label>
+                                        <input type="password" class="form-control" placeholder="Contraseña" id="passwordUsuario">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="perfilUsuario" class="form-label">Perfil</label>
+                                        <select class="form-select" id="perfilUsuario">
+                                            <option value="">Seleccione Perfil</option>
+                                            <option value="ADMINISTRADOR">Administrador</option>
+                                            <option value="USUARIO">Usuario</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="estadoUsuario" class="form-label">Estado</label>
+                                        <select class="form-select" id="estadoUsuario">
+                                            <option value="ACTIVO">Activo</option>
+                                            <option value="INACTIVO">Inactivo</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <button onclick="guardarUsuario()" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> Guardar Usuario
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Lista de Usuarios</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Acciones</th>
+                                                <th>Nombre Completo</th>
+                                                <th>Usuario</th>
+                                                <th>Perfil</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tablaUsuariosBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Configuración global de la aplicación
+        const APP_CONFIG = {
+            ELEMENTOS: {
+                LOGIN_FORM: 'loginForm',
+                MAIN_APP: 'mainApp',
+                USER_FULLNAME: 'userFullName',
+                USER_ROLE: 'userRole',
+                USERNAME: 'username',
+                PASSWORD: 'password'
+            },
+            SELECTORES: {
+                CONTENT_SECTION: '.content-section',
+                NAV_LINK: '.nav-link',
+                TABLA_USUARIOS_BODY: 'tablaUsuariosBody',
+                TABLA_CONSULTAS_BODY: 'tablaConsultasBody'},
+            FORMULARIOS: {
+                REGISTRO: {
+                    CAMPOS: ['curso', 'nombreEstudiante', 'motivo', 'subMotivo', 'comentario']
+                },
+                USUARIO: {
+                    CAMPOS: {
+                        nombreCompleto: 'nombreCompletoUsuario',
+                        usuario: 'usuarioNuevo',
+                        area: 'areaUsuario',
+                        cargo: 'cargoUsuario',
+                        password: 'passwordUsuario',
+                        perfil: 'perfilUsuario',
+                        estado: 'estadoUsuario'
+                    }
+                }
+            }
+        };
+
+        // Variables globales de la aplicación
+        let currentUser = null;
+        let configuracion = null;
+
+        // Funciones utilitarias
+        function manejarError(mensaje, error) {
+            console.error(mensaje, error);
+            alert(`${mensaje}: ${error}`);
+        }
+
+        function actualizarSelect(selectId, opciones, valorPorDefecto = '', textoPorDefecto = '') {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+            
+            select.innerHTML = `<option value="">${textoPorDefecto}</option>`;
+            opciones.forEach(opcion => {
+                select.innerHTML += `<option value="${opcion}">${opcion}</option>`;
+            });
+        }
+
+        function limpiarFormulario(campos) {
+            campos.forEach(({id, defaultValue = ''}) => {
+                const elemento = document.getElementById(id);
+                if (elemento) elemento.value = defaultValue;
+            });
+        }
+
+        function actualizarTablaEstado(tbody, mensaje, esError = false) {
+            const clase = esError ? 'text-danger' : '';
+            tbody.innerHTML = `<tr><td colspan="10" class="text-center ${clase}">${mensaje}</td></tr>`;
+        }
+
+        // Funciones de autenticación
+        function login() {
+            const username = document.getElementById(APP_CONFIG.ELEMENTOS.USERNAME).value;
+            const password = document.getElementById(APP_CONFIG.ELEMENTOS.PASSWORD).value;
+            
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    if (result.success) {
+                        currentUser = result.userData;
+                        document.getElementById(APP_CONFIG.ELEMENTOS.LOGIN_FORM).style.display = 'none';
+                        document.getElementById(APP_CONFIG.ELEMENTOS.MAIN_APP).style.display = 'block';
+                        document.getElementById(APP_CONFIG.ELEMENTOS.USER_FULLNAME).textContent = currentUser.nombre;
+                        document.getElementById(APP_CONFIG.ELEMENTOS.USER_ROLE).textContent = currentUser.perfil;
+                        inicializarApp();
+                    } else {
+                        alert(result.message);
+                    }
+                })
+                .withFailureHandler(error => manejarError('Error en login', error))
+                .validarUsuario(username, password);
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById(APP_CONFIG.ELEMENTOS.LOGIN_FORM).style.display = 'block';
+            document.getElementById(APP_CONFIG.ELEMENTOS.MAIN_APP).style.display = 'none';
+            document.getElementById(APP_CONFIG.ELEMENTOS.USERNAME).value = '';
+            document.getElementById(APP_CONFIG.ELEMENTOS.PASSWORD).value = '';
+        }
+
+        // Funciones de navegación
+        function showSection(section) {
+            document.querySelectorAll(APP_CONFIG.SELECTORES.CONTENT_SECTION).forEach(el => {
+                el.style.display = 'none';
+            });
+            
+            document.getElementById(section + 'Section').style.display = 'block';
+            document.getElementById('sectionTitle').textContent = 
+                section.charAt(0).toUpperCase() + section.slice(1);
+            
+            document.querySelectorAll(APP_CONFIG.SELECTORES.NAV_LINK).forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            document.querySelector(`${APP_CONFIG.SELECTORES.NAV_LINK}[onclick="showSection('${section}')"]`)
+                .classList.add('active');
+            
+            if (section === 'consultas') {
+                initConsultas();
+            }
+        }
+
+        // Funciones de configuración
+        function cargarConfiguraciones() {
+            google.script.run
+                .withSuccessHandler(function(config) {
+                    configuracion = config;
+                    
+                    // Cargar motivos
+                    actualizarSelect('motivo', config.motivos, '', 'Seleccione Motivo');
+                    
+                    // Cargar cursos
+                    actualizarSelect('curso', config.productos, '', 'Seleccione Curso');
+                    actualizarSelect('filtroCurso', config.productos, '', 'Todos los cursos');
+                })
+                .withFailureHandler(error => manejarError('Error al cargar configuraciones', error))
+                .obtenerConfiguraciones();
+        }
+
+        function updateSubMotivos() {
+            const motivo = document.getElementById('motivo').value;
+            if (configuracion?.subMotivos[motivo]) {
+                actualizarSelect('subMotivo', configuracion.subMotivos[motivo], '', 'Seleccione Sub-motivo');
+            }
+        }
+
+        function actualizarEstudiantesPorCurso() {
+            const cursoSeleccionado = document.getElementById('curso').value;
+            if (cursoSeleccionado && configuracion?.estudiantesPorProducto[cursoSeleccionado]) {
+                actualizarSelect(
+                    'nombreEstudiante', 
+                    configuracion.estudiantesPorProducto[cursoSeleccionado],
+                    '',
+                    'Seleccione Estudiante'
+                );
+            }
+        }
+
+        // Funciones de gestión de registros
+        function guardarRegistro() {
+            const datos = APP_CONFIG.FORMULARIOS.REGISTRO.CAMPOS.reduce((acc, campo) => {
+                acc[campo] = document.getElementById(campo).value;
+                return acc;
+            }, {
+                nombreProfesional: currentUser.nombre,
+                area: currentUser.area,
+                cargo: currentUser.cargo
+            });
+
+            google.script.run
+                .withSuccessHandler(result => {
+                    if (result.success) {
+                        alert(result.message);
+                        limpiarFormulario(APP_CONFIG.FORMULARIOS.REGISTRO.CAMPOS.map(id => ({id})));
+                    } else {
+                        manejarError('Error', result.message);
+                    }
+                })
+                .withFailureHandler(error => manejarError('Error al guardar registro', error))
+                .guardarRegistro(datos);
+        }
+
+        function consultarRegistros() {
+            const fechaInicio = document.getElementById('fechaInicio').value;
+            const fechaFin = document.getElementById('fechaFin').value;
+            const curso = document.getElementById('filtroCurso').value;
+            const estudiante = document.getElementById('filtroEstudiante').value;
+            
+            if (!fechaInicio || !fechaFin) {
+                alert('Seleccione rango de fechas');
+                return;
+            }
+            
+            const tbody = document.getElementById(APP_CONFIG.SELECTORES.TABLA_CONSULTAS_BODY);
+            actualizarTablaEstado(tbody, 'Cargando...');
+            
+            google.script.run
+                .withSuccessHandler(registros => {
+                    if (!registros?.length) {
+                        actualizarTablaEstado(tbody, 'Sin registros');
+                        return;
+                    }
+                    tbody.innerHTML = registros
+                        .map(r => `<tr>${Array.from({length: 10})
+                            .map((_, i) => `<td>${r[i] || ''}</td>`).join('')}</tr>`)
+                        .join('');
+                })
+                .withFailureHandler(error => actualizarTablaEstado(tbody, `Error: ${error}`, true))
+                .obtenerRegistros(fechaInicio, fechaFin, curso, estudiante);
+        }
+
+        // Funciones de gestión de usuarios
+        function gestionarUsuario(accion, usuario = null) {
+            const campos = APP_CONFIG.FORMULARIOS.USUARIO.CAMPOS;
+            const datos = Object.entries(campos).reduce((acc, [key, id]) => {
+                acc[key] = document.getElementById(id).value;
+                return acc;
+            }, {});
+
+            if (usuario) datos.usuario = usuario;
+
+            google.script.run
+                .withSuccessHandler(result => {
+                    if (result.success) {
+                        alert(result.message);
+                        cargarUsuarios();
+                        if (accion === 'crear') {
+                            limpiarFormulario(Object.values(campos).map(id => ({id})));
+                        }
+                    } else {
+                        manejarError('Error', result.message);
+                    }
+                })
+                .withFailureHandler(error => manejarError(`Error al ${accion} usuario`, error))
+                .gestionarUsuario(accion, datos);
+        }
+
+        function guardarUsuario() {
+            gestionarUsuario('crear');
+        }
+
+        function editarUsuario(usuario) {
+            google.script.run
+                .withSuccessHandler(usuarioCompleto => {
+                    if (usuarioCompleto) {
+                        const campos = APP_CONFIG.FORMULARIOS.USUARIO.CAMPOS;
+                        document.getElementById(campos.nombreCompleto).value = usuarioCompleto[1] || '';
+                        document.getElementById(campos.usuario).value = usuarioCompleto[2] || '';
+                        document.getElementById(campos.area).value = usuarioCompleto[4] || '';
+                        document.getElementById(campos.cargo).value = usuarioCompleto[5] || '';
+                        document.getElementById(campos.password).value = usuarioCompleto[3] || '';
+                        document.getElementById(campos.perfil).value = usuarioCompleto[6] || '';
+                        document.getElementById(campos.estado).value = usuarioCompleto[7] || 'ACTIVO';
+                        
+                        const btnGuardar = document.querySelector('button[onclick="guardarUsuario()"]');
+                        btnGuardar.innerHTML = '<i class="fas fa-save"></i> Actualizar Usuario';
+                        btnGuardar.onclick = () => actualizarUsuario(usuario);
+                    }
+                })
+                .withFailureHandler(error => manejarError('Error al cargar usuario', error))
+                .obtenerDatosUsuario(usuario);
+        }
+
+        function actualizarUsuario(usuarioOriginal) {
+            gestionarUsuario('actualizar', usuarioOriginal);
+        }
+
+        function eliminarUsuario(usuario) {
+            if (confirm('¿Está seguro de que desea desactivar este usuario?')) {
+                gestionarUsuario('eliminar', usuario);
+            }
+        }
+
+        function cargarUsuarios() {
+            const tbody = document.getElementById(APP_CONFIG.SELECTORES.TABLA_USUARIOS_BODY);
+            actualizarTablaEstado(tbody, 'Cargando usuarios...');
+            
+            google.script.run
+                .withSuccessHandler(usuarios => {
+                    if (!usuarios?.length) {
+                        actualizarTablaEstado(tbody, 'No hay usuarios registrados');
+                        return;
+                    }
+                    
+                    tbody.innerHTML = usuarios
+                        .filter(usuario => usuario[2])
+                        .map(usuario => `
+                            <tr>
+                                <td>
+                                    <button class="btn btn-sm btn-warning" onclick="editarUsuario('${usuario[2]}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="eliminarUsuario('${usuario[2]}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                                <td>${usuario[1] || ''}</td>
+                                <td>${usuario[2] || ''}</td>
+                                <td>${usuario[6] || ''}</td>
+                                <td>${usuario[7] || 'ACTIVO'}</td>
+                            </tr>
+                        `).join('');
+                })
+                .withFailureHandler(error => 
+                    actualizarTablaEstado(tbody, `Error al cargar usuarios: ${error}`, true))
+                .obtenerUsuarios();
+        }
+
+        // Funciones de impresión y consulta
+        function imprimirRegistros() {
+            const registros = document.getElementById('tablaConsultasBody').getElementsByTagName('tr');
+            if (!registros.length) {
+                alert('No hay datos para imprimir');
+                return;
+            }
+
+            const ventanaImpresion = window.open('', '_blank');
+            const contenidoHtml = `
+<html>
+   <head>
+       <title>Reporte de Registros</title>
+       <style>
+           body {
+               font-size: 15px; /* Cambiado a 12px */
+           }
+           h3 {
+               font-size: 15px; /* Agregado para asegurar que el título tenga 12px */
+           }
+           table { 
+               width: 100%; 
+               border-collapse: collapse; 
+               margin: 20px 0; 
+               table-layout: fixed;
+               font-size: 15px; /* Agregado para asegurar que la tabla tenga 12px */
+           }
+           th, td { 
+               border: 1px solid #ddd; 
+               padding: 8px; 
+               text-align: left;
+               vertical-align: top;
+               overflow-wrap: break-word;
+               font-size: 15px; /* Agregado para asegurar que las celdas tengan 12px */
+           }
+           th { 
+               background-color: #f2f2f2; 
+           }
+           /* Define anchos específicos para cada columna */
+           th:nth-child(1), td:nth-child(1) { width: 6%; }  /* Fecha */
+           th:nth-child(3), td:nth-child(3) { width: 9%; } /* Curso */
+           th:nth-child(4), td:nth-child(4) { width: 12%; } /* Estudiante */
+           th:nth-child(5), td:nth-child(5) { width: 7%; } /* Motivo */
+           th:nth-child(6), td:nth-child(6) { width: 7%; } /* Sub-motivo */
+           th:nth-child(7), td:nth-child(7) { 
+               width: 34%;
+               text-align: justify;
+           } /* Comentario */
+           th:nth-child(8), td:nth-child(8) { width: 12%; } /* Profesional */
+           th:nth-child(9), td:nth-child(9) { width: 5%; }  /* Área */
+           th:nth-child(10), td:nth-child(10) { width: 9%; } /* Cargo */
+
+           /* Oculta la columna de hora */
+           th:nth-child(2), td:nth-child(2) {
+               display: none;
+           }
+           @media print { 
+               button { 
+                   display: none; 
+               }
+               td {
+                   vertical-align: top !important;
+               }
+               /* Mantiene los anchos al imprimir */
+               table {
+                   table-layout: fixed !important;
+               }
+               /* Asegura que el tamaño de fuente se mantenga al imprimir */
+               body, table, th, td, h3 {
+                   font-size: 12px !important;
+               }
+           }
+       </style>
+   </head>
+   <body>
+       <h3>Reporte de Registros</h3>
+       <table>
+           <thead>
+               <tr>
+                   <th>Fecha</th>
+                   <th>Hora</th>
+                   <th>Curso</th>
+                   <th>Estudiante</th>
+                   <th>Motivo</th>
+                   <th>Sub-motivo</th>
+                   <th>Comentario</th>
+                   <th>Profesional</th>
+                   <th>Área</th>
+                   <th>Cargo</th>
+               </tr>
+           </thead>
+           <tbody>
+               ${Array.from(registros).map(row => row.outerHTML).join('')}
+           </tbody>
+       </table>
+       <button onclick="window.print()">Imprimir</button>
+   </body>
+</html>
+            `;
+            ventanaImpresion.document.write(contenidoHtml);
+        }
+
+        function initConsultas() {
+            const hoy = new Date();
+            const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+            
+            const fechaInicio = document.getElementById('fechaInicio');
+            const fechaFin = document.getElementById('fechaFin');
+            
+            if (fechaInicio && fechaFin) {
+                fechaInicio.valueAsDate = inicioMes;
+                fechaFin.valueAsDate = hoy;
+            }
+        }
+
+        // Funciones de inicialización
+        function inicializarApp() {
+            cargarConfiguraciones();
+            showSection('registros');
+            
+            // Event listeners
+            document.getElementById('curso').addEventListener('change', actualizarEstudiantesPorCurso);
+            document.getElementById('filtroCurso').addEventListener('change', actualizarEstudiantesConsulta);
+            
+            // Verificar permisos de administrador
+            if (currentUser.perfil === 'ADMINISTRADOR') {cargarUsuarios();
+            } else {
+                document.querySelector('.nav-link[onclick="showSection(\'usuarios\')"]').style.display = 'none';
+            }
+        }
+
+        // Función para actualizar estudiantes en consultas
+        function actualizarEstudiantesConsulta() {
+            const cursoSeleccionado = document.getElementById('filtroCurso').value;
+            if (cursoSeleccionado && configuracion?.estudiantesPorProducto[cursoSeleccionado]) {
+                actualizarSelect(
+                    'filtroEstudiante',
+                    configuracion.estudiantesPorProducto[cursoSeleccionado],
+                    '',
+                    'Todos los estudiantes'
+                );
+            }
+        }
+    </script>
+</body>
+</html>
